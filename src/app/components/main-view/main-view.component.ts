@@ -7,6 +7,10 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MainViewComponent implements OnInit {
 
+  x:number = -0.7269;
+  y:number = 0.1889;
+  isJuliaSet = 0;
+
   constructor() { }
 
   ngOnInit() {

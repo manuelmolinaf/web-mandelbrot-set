@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 
 const WIDTH = 1000;
 const HEIGHT = 1000;
@@ -10,23 +10,23 @@ const HEIGHT = 1000;
 })
 export class MandelbrotCanvasComponent implements OnInit {
 
+  @Input() juliaX:number;
+  @Input() juliaY:number;
+  @Input() isJuliaSet:number;
+
   @ViewChild('canvas', { static: true })
   canvas: ElementRef<HTMLCanvasElement>;
 
   private ctx: CanvasRenderingContext2D;
 
-  public maxN:number = 200;
+  public maxN:number = 500;
 
-  public minR:number = -1.5;
-  public maxR:number = 1.5;
+  public minR:number = -1.6;
+  public maxR:number = 1.6;
 
-  public minI:number = -1.5;
-  public maxI:number = 1.5;
+  public minI:number = -1.6;
+  public maxI:number = 1.6;
 
-  public cx = 0;
-  public cy = 0.8;
-
-  public isJuliaSet = 1;
 
   public img:any;
 
@@ -35,11 +35,24 @@ export class MandelbrotCanvasComponent implements OnInit {
 
   ngOnInit() {
     this.ctx = this.canvas.nativeElement.getContext('2d');
+    this.update();
+  }
+
+  ngOnChanges() {
+    this.ctx = this.canvas.nativeElement.getContext('2d');
+    this.update();
+  }
+
+  update() {
+    this.ctx.clearRect(0,0,WIDTH,HEIGHT);
     this.draw();
     this.canvasToImage();
   }
 
   draw() {
+
+    this.ctx.translate(0, HEIGHT);
+    this.ctx.scale(1,-1);
 
     for (let y = 0; y < WIDTH; y++ ) {
 
@@ -57,17 +70,24 @@ export class MandelbrotCanvasComponent implements OnInit {
         
 
         //coloring functions
-        let r = (n % 255);
-        let g = (n % 255);
-        let b = (n % 255);
+        let h = (n*7 % 359);
+
+        let s = 50;
+        if(n === this.maxN) {
+          s = 0;
+        }
 
         this.ctx.beginPath();
         this.ctx.rect(x, y, 1, 1);
-        this.ctx.strokeStyle = 'rgb(' + r + ',' + g +',' + b + ')';
+        this.ctx.strokeStyle = 'hsl(' + h.toString() +', 100%,' + s.toString() +'%)';
+        //this.ctx.strokeStyle = 'hsl(' + h.toString() +', 100%,' + h.toString() +'%)';
+        //this.ctx.strokeStyle = 'hsl(' + h.toString() +', ' + h.toString() +'%, 50%)';
         this.ctx.stroke();
 
       }
     }
+
+    
     
   }
 
@@ -126,13 +146,13 @@ export class MandelbrotCanvasComponent implements OnInit {
       let xx = x*x;
       let yy = y*y;
 
-      if(xx*xx + yy*yy > 4.0) {
+      if(xx*xx + yy*yy > 16.0) {
         break;
       }
 
       let twoxy = 2.0 * x * y;
-      x = xx - yy + this.cx;
-      y = twoxy + this.cy;
+      x = xx - yy + this.juliaX;
+      y = twoxy + this.juliaY;
 
       
       i++;
