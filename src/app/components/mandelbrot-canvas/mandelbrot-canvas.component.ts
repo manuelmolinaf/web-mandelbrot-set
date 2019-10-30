@@ -13,46 +13,53 @@ export class MandelbrotCanvasComponent implements OnInit {
   @Input() juliaX:number;
   @Input() juliaY:number;
   @Input() isJuliaSet:number;
+  @Input() maxN:number;
+  @Input() minR:number;
+  @Input() maxR:number;
+  @Input() minI:number;
+  @Input() maxI:number;
+
+  @Input() treeN:number;
+  @Input() treeDegree:number;
+  @Input() branchLength:number;
+  @Input() treeColor:number;
 
   @ViewChild('canvas', { static: true })
   canvas: ElementRef<HTMLCanvasElement>;
 
   private ctx: CanvasRenderingContext2D;
-
-  public maxN:number = 500;
-
-  public minR:number = -1.6;
-  public maxR:number = 1.6;
-
-  public minI:number = -1.6;
-  public maxI:number = 1.6;
-
-
   public img:any;
+  
+  
 
-
+  //comenta drawtree en ngoninit y on changes y descomenta update en ambos para dibujar mandelbrot
   constructor() { }
 
   ngOnInit() {
     this.ctx = this.canvas.nativeElement.getContext('2d');
-    this.update();
+    this.drawTree();
+    //this.update();
   }
 
   ngOnChanges() {
     this.ctx = this.canvas.nativeElement.getContext('2d');
-    this.update();
+    this.drawTree();
+    //this.update();
   }
 
   update() {
     this.ctx.clearRect(0,0,WIDTH,HEIGHT);
+    this.ctx.save();
+    this.ctx.translate(0, HEIGHT);
+    this.ctx.scale(1,-1);
     this.draw();
+    this.ctx.restore();
     this.canvasToImage();
   }
 
   draw() {
 
-    this.ctx.translate(0, HEIGHT);
-    this.ctx.scale(1,-1);
+    
 
     for (let y = 0; y < WIDTH; y++ ) {
 
@@ -69,8 +76,8 @@ export class MandelbrotCanvasComponent implements OnInit {
         }
         
 
-        //coloring functions
-        let h = (n*7 % 359);
+        //coloring function
+        let h = (n % 360) ;
 
         let s = 50;
         if(n === this.maxN) {
@@ -167,4 +174,60 @@ export class MandelbrotCanvasComponent implements OnInit {
     this.img = canvas.toDataURL("image/png");
 
   }
+
+  drawTree() {
+    this.ctx.clearRect(0,0,WIDTH,HEIGHT);
+    this.drawFractalTree( this.branchLength, WIDTH/2, HEIGHT, 0, true, 270 );
+    this.canvasToImage();
+  }
+
+  drawFractalTree(lenght:number, x:number, y:number, index:number, isLeft:boolean, angle:number) {
+
+    this.ctx.beginPath();
+
+    let coords: number[];
+    
+
+    if(index === 0) {
+
+      coords = this.lineToAngle(x, y, lenght, 270, index);
+    }
+    else {
+
+      if(isLeft) {
+        coords = this.lineToAngle(x, y, lenght, angle + this.treeDegree, index);
+      }
+      else {
+        coords = this.lineToAngle(x, y, lenght, angle - this.treeDegree, index);
+      }
+
+    }
+    
+    
+    index++;
+
+    if(index !== this.treeN) {
+      this.drawFractalTree(lenght*0.67, coords[0], coords[1], index, true, angle + this.treeDegree);
+      this.drawFractalTree(lenght*0.67, coords[0], coords[1], index, false, angle - this.treeDegree);
+    }
+
+  }
+
+  lineToAngle(x1:number, y1:number, length:number, angle:number, index:number) {
+
+    angle *= Math.PI / 180;
+
+    var x2 = x1 + length * Math.cos(angle),
+        y2 = y1 + length * Math.sin(angle);
+
+    this.ctx.moveTo(x1, y1);
+    this.ctx.lineTo(x2, y2);
+    //cambia aqui abajo los colorer el primer argumento, tree color es el color , el segundo la 
+    //saturacion y el tercero que tan claro u oscuro
+    this.ctx.strokeStyle = 'hsl(' + this.treeColor.toString() +', 100%, 50%)';
+    this.ctx.stroke();
+
+    return [x2, y2];
+  }
+
 }
