@@ -22,6 +22,7 @@ export class MainViewComponent implements OnInit {
   public branchLength:number = 250;
   public treeColor:number = 0;
   public treeColorStyle = 'color:hsl('+ this.treeColor.toString() +', 300, 50)';
+  public fractalType:number = 1;
 
   constructor() { }
 

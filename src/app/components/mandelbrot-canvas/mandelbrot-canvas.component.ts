@@ -23,13 +23,15 @@ export class MandelbrotCanvasComponent implements OnInit {
   @Input() treeDegree:number;
   @Input() branchLength:number;
   @Input() treeColor:number;
+  @Input() fractalType:number;
+  
 
   @ViewChild('canvas', { static: true })
   canvas: ElementRef<HTMLCanvasElement>;
 
   private ctx: CanvasRenderingContext2D;
   public img:any;
-  
+  public branchN:number = 3;
   
 
   //comenta drawtree en ngoninit y on changes y descomenta update en ambos para dibujar mandelbrot
@@ -37,14 +39,27 @@ export class MandelbrotCanvasComponent implements OnInit {
 
   ngOnInit() {
     this.ctx = this.canvas.nativeElement.getContext('2d');
-    this.drawTree();
-    //this.update();
+
+    if(this.fractalType === 0){
+      this.update();
+    }
+    else if(this.fractalType === 1){
+      this.drawTrainTree();
+    }
+      
+    
   }
 
   ngOnChanges() {
     this.ctx = this.canvas.nativeElement.getContext('2d');
-    this.drawTree();
-    //this.update();
+   
+    if(this.fractalType === 0){
+      this.update();
+    }
+    else if(this.fractalType === 1){
+      this.drawTrainTree();
+    }
+    
   }
 
   update() {
@@ -228,6 +243,24 @@ export class MandelbrotCanvasComponent implements OnInit {
     this.ctx.stroke();
 
     return [x2, y2];
+  }
+
+  drawTrainTree() {
+    this.ctx.clearRect(0,0,WIDTH,HEIGHT);
+
+    this.ctx.translate(500, 1000);
+
+    this.branch(250);
+
+
+
+  }
+
+  branch(length:number) {
+
+    this.ctx.lineTo(0, length);
+
+
   }
 
 }
